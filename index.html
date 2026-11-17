@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relasi & Fungsi - Sulistyana-Spensa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- KaTeX for Math Rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f0fdf4;
+            overflow-x: hidden;
+        }
+        h1, h2, h3, h4, h5, h6, .font-poppins {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        /* Animations */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .animate-float { animation: float 3s ease-in-out infinite; }
+        
+        @keyframes bounceIn {
+            0% { transform: scale(0.1); opacity: 0; }
+            60% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+        .animate-bounce-in { animation: bounceIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+        .animate-shake { animation: shake 0.4s ease-in-out; }
+
+        .section-content {
+            display: none;
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        .section-content.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #e0f2fe; }
+        ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #2563eb; }
+
+        /* Math Styling */
+        .math { font-family: 'Courier New', Courier, monospace; font-weight: bold; color: #1e40af; background: #e0f2fe; padding: 2px 6px; border-radius: 4px; }
+
+        /* Flashcard Gamification */
+        .flashcard {
+            perspective: 1000px;
+        }
+        .flashcard-inner {
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .flashcard.flip .flashcard-inner {
+            transform: rotateY(180deg);
+        }
+        .flashcard-front, .flashcard-back {
+            backface-visibility: hidden;
+        }
+        .flashcard-back {
+            transform: rotateY(180deg);
+        }
+
+        /* Radio styles for Quiz */
+        .quiz-option input:checked + div {
+            background-color: #3b82f6;
+            color: white;
+            border-color: #2563eb;
+        }
+
+        /* Accordion Styles */
+        .accordion-content {
+            transition: max-height 0.3s ease-in-out, padding 0.3s ease;
+            max-height: 0;
+            overflow: hidden;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+        .accordion-content.expanded {
+            max-height: 2000px; /* Large enough for content */
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+        .accordion-icon {
+            transition: transform 0.3s ease;
+        }
+        .accordion-btn.expanded .accordion-icon {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body class="flex flex-col md:flex-row h-screen text-gray-800">
+
+    <!-- Sidebar / Bottom Nav (Mobile) -->
+    <nav class="bg-indigo-600 text-white w-full md:w-64 flex-shrink-0 flex md:flex-col justify-around md:justify-start shadow-xl z-20 sticky top-0 md:h-screen md:overflow-y-auto">
+        <div class="hidden md:block p-6 text-center border-b border-indigo-500">
+            <div class="w-20 h-20 mx-auto bg-white rounded-full flex items-center justify-center mb-3 shadow-lg">
+                <i class="fas fa-square-root-variable text-4xl text-indigo-600"></i>
+            </div>
+            <h1 class="text-xl font-bold font-poppins text-yellow-300">Math Fun!</h1>
+            <p class="text-sm text-indigo-200">Sulistyana-Spensa</p>
+        </div>
+        <div class="flex md:flex-col w-full px-2 py-2 md:py-4 gap-1 md:gap-2">
+            <button onclick="nav('home')" class="nav-btn active flex flex-col md:flex-row items-center p-2 md:p-3 rounded-lg hover:bg-indigo-500 transition-colors text-xs md:text-base font-semibold w-full text-left" data-target="home">
+                <i class="fas fa-home md:w-8 text-lg mb-1 md:mb-0"></i> <span>Beranda</span>
+            </button>
+            <button onclick="nav('materi')" class="nav-btn flex flex-col md:flex-row items-center p-2 md:p-3 rounded-lg hover:bg-indigo-500 transition-colors text-xs md:text-base font-semibold w-full text-left" data-target="materi">
+                <i class="fas fa-book-open md:w-8 text-lg mb-1 md:mb-0"></i> <span>Materi</span>
+            </button>
+            <button onclick="nav('contoh')" class="nav-btn flex flex-col md:flex-row items-center p-2 md:p-3 rounded-lg hover:bg-indigo-500 transition-colors text-xs md:text-base font-semibold w-full text-left" data-target="contoh">
+                <i class="fas fa-lightbulb md:w-8 text-lg mb-1 md:mb-0"></i> <span>Contoh</span>
+            </button>
+            <button onclick="nav('kuis')" class="nav-btn flex flex-col md:flex-row items-center p-2 md:p-3 rounded-lg hover:bg-indigo-500 transition-colors text-xs md:text-base font-semibold w-full text-left text-yellow-300" data-target="kuis">
+                <i class="fas fa-gamepad md:w-8 text-lg mb-1 md:mb-0"></i> <span>Main Kuis</span>
+            </button>
+            <button onclick="nav('latihan')" class="nav-btn flex flex-col md:flex-row items-center p-2 md:p-3 rounded-lg hover:bg-indigo-500 transition-colors text-xs md:text-base font-semibold w-full text-left text-green-300" data-target="latihan">
+                <i class="fas fa-dumbbell md:w-8 text-lg mb-1 md:mb-0"></i> <span>Latihan (10)</span>
+            </button>
+            <button onclick="nav('asesmen')" class="nav-btn flex flex-col md:flex-row items-center p-2 md:p-3 rounded-lg hover:bg-indigo-500 transition-colors text-xs md:text-base font-semibold w-full text-left text-red-300" data-target="asesmen">
+                <i class="fas fa-award md:w-8 text-lg mb-1 md:mb-0"></i> <span>Asesmen (25)</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 p-4 md:p-8 overflow-y-auto relative w-full">
+        
+        <!-- SECTION: HOME -->
+        <section id="home" class="section-content active max-w-4xl mx-auto text-center pt-10">
+            <div class="bg-white p-8 rounded-3xl shadow-xl border-4 border-indigo-100">
+                <div class="inline-block p-4 bg-yellow-100 rounded-full mb-6 animate-float">
+                    <i class="fas fa-rocket text-6xl text-yellow-500"></i>
+                </div>
+                <h1 class="text-4xl md:text-5xl font-extrabold text-indigo-700 mb-4 drop-shadow-sm">Selamat Datang di Dunia Matematika!</h1>
+                <p class="text-xl md:text-2xl text-gray-600 mb-6 font-semibold">Bab: Relasi dan Fungsi (SMP Kelas 8)</p>
+                <div class="bg-indigo-50 border-l-4 border-indigo-500 p-4 rounded-r-lg inline-block text-left mb-8 shadow-sm">
+                    <p class="text-lg text-indigo-900"><i class="fas fa-chalkboard-teacher mr-2"></i> Disusun khusus untuk siswa hebat oleh <b>Ibu Sulistyana-Spensa</b></p>
+                </div>
+                <p class="text-gray-500 mb-8 max-w-2xl mx-auto">Mari belajar matematika dengan cara yang seru, interaktif, dan penuh warna. Siapkan dirimu untuk berpetualang memahami Relasi dan Fungsi!</p>
+                <button onclick="nav('materi')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-8 rounded-full shadow-lg transform transition hover:scale-105 hover:shadow-xl text-xl">
+                    Mulai Belajar Sekarang! <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- SECTION: MATERI (COMPREHENSIVE) -->
+        <section id="materi" class="section-content max-w-5xl mx-auto pb-10">
+            <h2 class="text-3xl font-bold text-indigo-800 mb-6 border-b-4 border-yellow-400 inline-block pb-2"><i class="fas fa-book-open mr-2 text-yellow-500"></i> Materi Lengkap Relasi & Fungsi</h2>
+            <p class="text-gray-600 mb-6 bg-white p-4 rounded-lg shadow-sm border-l-4 border-indigo-500">Klik pada setiap judul materi di bawah ini untuk membaca penjelasan lengkapnya.</p>
+
+            <div class="space-y-4">
+                
+                <!-- Accordion 1 -->
+                <div class="bg-white rounded-2xl shadow-sm border border-indigo-100 overflow-hidden">
+                    <button onclick="toggleAccordion('acc1')" class="accordion-btn w-full flex justify-between items-center p-5 bg-indigo-50 hover:bg-indigo-100 transition text-left text-lg font-bold text-indigo-800" id="btn-acc1">
+                        <span>1. Pengertian Relasi & Cara Penyajiannya</span>
+                        <i class="fas fa-chevron-down accordion-icon text-indigo-500"></i>
+                    </button>
+                    <div id="acc1" class="accordion-content px-6 bg-white">
+                        <p class="mb-3 text-gray-700"><b>Relasi</b> dari himpunan A ke himpunan B adalah suatu aturan yang memasangkan anggota-anggota himpunan A dengan anggota-anggota himpunan B.</p>
+                        <p class="mb-3 text-gray-700">Contoh: Himpunan \(A = \{Ali, Budi, Caca\}\) dan \(B = \{Bakso, Mie, Sate\}\). Relasi yang mungkin adalah "makanan kesukaan".</p>
+                        
+                        <h4 class="font-bold text-gray-800 mt-4 mb-2 border-b border-gray-200 pb-1">3 Cara Menyajikan Relasi:</h4>
+                        <ol class="list-decimal ml-5 text-gray-700 space-y-4">
+                            <li>
+                                <b>Diagram Panah:</b><br>
+                                Menggunakan dua kurva tertutup (biasanya lonjong) untuk himpunan A dan B, lalu dihubungkan dengan tanda panah. 
+                                <br><i class="text-sm text-gray-500">Contoh: Panah dari Ali menunjuk ke Bakso.</i>
+                            </li>
+                            <li>
+                                <b>Himpunan Pasangan Berurutan:</b><br>
+                                Menuliskan pasangan dalam kurung biasa dan kurung kurawal. Anggota himpunan pertama (A) ditulis duluan.<br>
+                                Contoh: \( \{ (Ali, Bakso), (Budi, Mie), (Caca, Sate), (Caca, Bakso) \} \)
+                            </li>
+                            <li>
+                                <b>Diagram Kartesius:</b><br>
+                                Menggunakan sumbu mendatar (Sumbu X) untuk anggota himpunan A (daerah asal), dan sumbu tegak (Sumbu Y) untuk anggota himpunan B. Hubungan ditandai dengan titik (noktah).
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Accordion 2 -->
+                <div class="bg-white rounded-2xl shadow-sm border border-green-100 overflow-hidden">
+                    <button onclick="toggleAccordion('acc2')" class="accordion-btn w-full flex justify-between items-center p-5 bg-green-50 hover:bg-green-100 transition text-left text-lg font-bold text-green-800" id="btn-acc2">
+                        <span>2. Pengertian Fungsi (Pemetaan)</span>
+                        <i class="fas fa-chevron-down accordion-icon text-green-500"></i>
+                    </button>
+                    <div id="acc2" class="accordion-content px-6 bg-white">
+                        <p class="mb-3 text-gray-700"><b>Fungsi (Pemetaan)</b> dari himpunan A ke himpunan B adalah relasi <b>KHUSUS</b> yang memasangkan <b>SETIAP</b> anggota himpunan A dengan <b>TEPAT SATU</b> anggota himpunan B.</p>
+                        
+                        <div class="bg-red-50 p-4 rounded-lg border-l-4 border-red-500 mb-4">
+                            <h4 class="font-bold text-red-700 mb-1"><i class="fas fa-exclamation-circle mr-1"></i> Syarat Wajib Fungsi:</h4>
+                            <ul class="list-disc ml-5 text-gray-700">
+                                <li>Semua anggota A (kiri) <b>harus punya pasangan</b> (tidak boleh jomblo/kosong).</li>
+                                <li>Setiap anggota A (kiri) <b>hanya boleh menunjuk satu kali</b> ke B (tidak boleh bercabang/selingkuh).</li>
+                                <li><i class="text-sm text-gray-600">Catatan: Anggota B (kanan) bebas, boleh tidak punya pasangan, boleh dipasangkan lebih dari satu kali.</i></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Accordion 3 -->
+                <div class="bg-white rounded-2xl shadow-sm border border-purple-100 overflow-hidden">
+                    <button onclick="toggleAccordion('acc3')" class="accordion-btn w-full flex justify-between items-center p-5 bg-purple-50 hover:bg-purple-100 transition text-left text-lg font-bold text-purple-800" id="btn-acc3">
+                        <span>3. Domain, Kodomain, dan Range</span>
+                        <i class="fas fa-chevron-down accordion-icon text-purple-500"></i>
+                    </button>
+                    <div id="acc3" class="accordion-content px-6 bg-white">
+                        <p class="mb-4 text-gray-700">Dalam fungsi \(f: A \rightarrow B\), terdapat istilah-istilah penting:</p>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                            <div class="bg-blue-50 p-4 rounded-xl border border-blue-200">
+                                <h4 class="font-bold text-blue-700 text-center mb-2">Domain</h4>
+                                <p class="text-sm text-gray-700 text-center">Daerah Asal.<br>Seluruh anggota himpunan A.</p>
+                            </div>
+                            <div class="bg-pink-50 p-4 rounded-xl border border-pink-200">
+                                <h4 class="font-bold text-pink-700 text-center mb-2">Kodomain</h4>
+                                <p class="text-sm text-gray-700 text-center">Daerah Kawan.<br>Seluruh anggota himpunan B.</p>
+                            </div>
+                            <div class="bg-yellow-50 p-4 rounded-xl border border-yellow-200">
+                                <h4 class="font-bold text-yellow-700 text-center mb-2">Range</h4>
+                                <p class="text-sm text-gray-700 text-center">Daerah Hasil.<br>Anggota B yang punya pasangan dari A.</p>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <p class="font-bold text-gray-700 mb-1">Contoh Soal:</p>
+                            <p class="text-gray-600 mb-1">Diketahui himpunan pasangan berurutan pemetaan: \( \{ (1,a), (2,b), (3,b) \} \).</p>
+                            <ul class="list-disc ml-5 text-gray-600">
+                                <li><b>Domain:</b> \( \{1, 2, 3\} \)</li>
+                                <li><b>Kodomain:</b> \( \{a, b\} \) (biasanya diketahui di soal, misal himpunan B)</li>
+                                <li><b>Range:</b> \( \{a, b\} \)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Accordion 4 -->
+                <div class="bg-white rounded-2xl shadow-sm border border-orange-100 overflow-hidden">
+                    <button onclick="toggleAccordion('acc4')" class="accordion-btn w-full flex justify-between items-center p-5 bg-orange-50 hover:bg-orange-100 transition text-left text-lg font-bold text-orange-800" id="btn-acc4">
+                        <span>4. Rumus Banyaknya Pemetaan</span>
+                        <i class="fas fa-chevron-down accordion-icon text-orange-500"></i>
+                    </button>
+                    <div id="acc4" class="accordion-content px-6 bg-white">
+                        <p class="mb-3 text-gray-700">Jika kita tahu jumlah anggota himpunan A dan B, kita bisa menghitung berapa banyak kemungkinan fungsi (pemetaan) yang bisa dibuat.</p>
+                        <div class="bg-orange-100 p-4 rounded-xl text-center mb-4">
+                            <p class="text-lg text-orange-900 font-bold mb-2">Rumus Banyak Pemetaan:</p>
+                            <p class="text-gray-700 mb-1">Dari himpunan A ke B = \( n(B)^{n(A)} \)</p>
+                            <p class="text-gray-700">Dari himpunan B ke A = \( n(A)^{n(B)} \)</p>
+                            <p class="text-sm text-gray-500 mt-1"><i>Keterangan: \(n(A)\) adalah jumlah anggota A.</i></p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <p class="font-bold text-gray-700 mb-1">Contoh Soal:</p>
+                            <p class="text-gray-600 mb-1">Jika \( A = \{1, 2\} \) dan \( B = \{a, b, c\} \).</p>
+                            <p class="text-gray-600 mb-1">Banyak anggota \( n(A) = 2 \) dan \( n(B) = 3 \).</p>
+                            <p class="text-gray-600">Banyak pemetaan dari A ke B = \( 3^2 = 9 \).</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Accordion 5 -->
+                <div class="bg-white rounded-2xl shadow-sm border border-teal-100 overflow-hidden">
+                    <button onclick="toggleAccordion('acc5')" class="accordion-btn w-full flex justify-between items-center p-5 bg-teal-50 hover:bg-teal-100 transition text-left text-lg font-bold text-teal-800" id="btn-acc5">
+                        <span>5. Korespondensi Satu-Satu</span>
+                        <i class="fas fa-chevron-down accordion-icon text-teal-500"></i>
+                    </button>
+                    <div id="acc5" class="accordion-content px-6 bg-white">
+                        <p class="mb-3 text-gray-700"><b>Korespondensi Satu-Satu</b> adalah relasi super spesial dimana <b>setiap anggota A dipasangkan dengan tepat satu anggota B</b>, DAN <b>setiap anggota B dipasangkan dengan tepat satu anggota A</b> (tidak ada yang jomblo dan tidak ada yang selingkuh di kedua sisi).</p>
+                        
+                        <div class="bg-teal-50 p-3 rounded-lg border-l-4 border-teal-500 mb-4 text-teal-800 font-medium">
+                            Syarat Mutlak: Jumlah anggota himpunan A harus sama dengan himpunan B, atau \( n(A) = n(B) = n \).
+                        </div>
+
+                        <div class="bg-teal-100 p-4 rounded-xl text-center mb-4">
+                            <p class="text-lg text-teal-900 font-bold mb-2">Rumus Banyak Korespondensi Satu-Satu:</p>
+                            <p class="text-xl text-teal-800 font-bold">\( n! \)</p>
+                            <p class="text-sm text-gray-600 mt-1"><i>(Dibaca: n faktorial) = \( n \times (n-1) \times (n-2) \times ... \times 1 \)</i></p>
+                        </div>
+
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <p class="font-bold text-gray-700 mb-1">Contoh Soal:</p>
+                            <p class="text-gray-600 mb-1">Jika \( A = \{a, b, c\} \) dan \( B = \{1, 2, 3\} \). Berapa banyak korespondensi satu-satu yang mungkin?</p>
+                            <p class="text-gray-600">Jawab: \( n = 3 \). Banyaknya = \( 3! = 3 \times 2 \times 1 = 6 \).</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Accordion 6 -->
+                <div class="bg-white rounded-2xl shadow-sm border border-red-100 overflow-hidden">
+                    <button onclick="toggleAccordion('acc6')" class="accordion-btn w-full flex justify-between items-center p-5 bg-red-50 hover:bg-red-100 transition text-left text-lg font-bold text-red-800" id="btn-acc6">
+                        <span>6. Notasi, Rumus Fungsi & SPLDV</span>
+                        <i class="fas fa-chevron-down accordion-icon text-red-500"></i>
+                    </button>
+                    <div id="acc6" class="accordion-content px-6 bg-white">
+                        <p class="mb-2 text-gray-700">Fungsi biasanya dinotasikan dengan \( f: x \rightarrow ax + b \) (dibaca: fungsi f memetakan x ke ax+b).</p>
+                        <p class="mb-4 text-gray-700">Bentuk rumus fungsinya ditulis: <span class="bg-yellow-100 font-bold px-2 py-1 rounded">\( f(x) = ax + b \)</span></p>
+                        
+                        <h4 class="font-bold text-red-800 mb-2 mt-6 border-b border-red-200 pb-1">Cara Mencari Rumus Fungsi Jika Diketahui 2 Nilai</h4>
+                        <p class="text-gray-600 mb-2">Gunakan Sistem Persamaan Linear Dua Variabel (SPLDV) dengan metode eliminasi dan substitusi.</p>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-300">
+                            <p class="font-bold text-gray-800 mb-2">Contoh Soal Menantang:</p>
+                            <p class="text-gray-700 mb-2">Suatu fungsi linear dinyatakan dengan \( f(x) = ax + b \). Jika \( f(2) = 3 \) dan \( f(4) = 7 \), tentukanlah rumus fungsinya!</p>
+                            
+                            <p class="font-bold text-blue-700 mt-3">Langkah Penyelesaian:</p>
+                            <ol class="list-decimal ml-5 text-gray-700 space-y-1 mt-1">
+                                <li>Substitusi ke \( f(x) = ax + b \)</li>
+                                <li>Untuk \( f(2) = 3 \rightarrow \mathbf{2a + b = 3} \) ... (Persamaan 1)</li>
+                                <li>Untuk \( f(4) = 7 \rightarrow \mathbf{4a + b = 7} \) ... (Persamaan 2)</li>
+                                <li><b>Eliminasi b:</b><br>
+                                    \( 2a + b = 3 \)<br>
+                                    \( 4a + b = 7 \) <br>
+                                    ------------- (-)<br>
+                                    \( -2a = -4 \)<br>
+                                    \( \mathbf{a = 2} \)
+                                </li>
+                                <li><b>Substitusi nilai a=2</b> ke Persamaan 1:<br>
+                                    \( 2(2) + b = 3 \)<br>
+                                    \( 4 + b = 3 \)<br>
+                                    \( \mathbf{b = -1} \)
+                                </li>
+                                <li>Masukkan nilai a dan b ke rumus asal \( f(x) = ax + b \).</li>
+                                <li class="font-bold text-green-700 mt-2">Jadi, rumus fungsinya adalah: \( f(x) = 2x - 1 \)</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION: CONTOH SOAL -->
+        <section id="contoh" class="section-content max-w-4xl mx-auto">
+            <h2 class="text-3xl font-bold text-orange-600 mb-6 border-b-4 border-orange-300 inline-block pb-2"><i class="fas fa-lightbulb mr-2"></i> Contoh Soal & Pembahasan</h2>
+            
+            <div class="space-y-6">
+                <!-- Contoh 1 -->
+                <div class="bg-white rounded-2xl shadow-md overflow-hidden">
+                    <div class="bg-orange-100 p-4 border-b border-orange-200">
+                        <h3 class="font-bold text-orange-800">Contoh 1: Menentukan Nilai Fungsi</h3>
+                    </div>
+                    <div class="p-5">
+                        <p class="mb-4 text-gray-700">Diketahui fungsi <span class="math">f(x) = 3x - 5</span>. Tentukanlah nilai dari <span class="math">f(4)</span>!</p>
+                        <button onclick="toggleJawaban('jawaban1')" class="bg-orange-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-orange-600 mb-3"><i class="fas fa-eye"></i> Lihat Pembahasan</button>
+                        <div id="jawaban1" class="hidden bg-gray-50 p-4 rounded-lg border-l-4 border-orange-500 text-gray-700 mt-2">
+                            <p><b>Jawab:</b></p>
+                            <p>Ganti nilai <span class="math">x</span> dengan 4.</p>
+                            <p><span class="math">f(x) = 3x - 5</span></p>
+                            <p><span class="math">f(4) = 3(4) - 5</span></p>
+                            <p><span class="math">f(4) = 12 - 5</span></p>
+                            <p><span class="math">f(4) = 7</span></p>
+                            <p>Jadi, nilai <span class="math">f(4)</span> adalah <b>7</b>.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contoh 2 -->
+                <div class="bg-white rounded-2xl shadow-md overflow-hidden">
+                    <div class="bg-blue-100 p-4 border-b border-blue-200">
+                        <h3 class="font-bold text-blue-800">Contoh 2: Mencari Nilai 'x' (Bila Bayangan Diketahui)</h3>
+                    </div>
+                    <div class="p-5">
+                        <p class="mb-4 text-gray-700">Diketahui fungsi <span class="math">h(x) = 2x + 1</span>. Jika <span class="math">h(a) = 9</span>, tentukan nilai <span class="math">a</span>!</p>
+                        <button onclick="toggleJawaban('jawaban2')" class="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-600 mb-3"><i class="fas fa-eye"></i> Lihat Pembahasan</button>
+                        <div id="jawaban2" class="hidden bg-gray-50 p-4 rounded-lg border-l-4 border-blue-500 text-gray-700 mt-2">
+                            <p><b>Jawab:</b></p>
+                            <p>Kita ketahui rumus fungsinya, substitusi <span class="math">x</span> dengan <span class="math">a</span> dan samakan dengan 9.</p>
+                            <p><span class="math">h(a) = 2a + 1</span></p>
+                            <p><span class="math">9 = 2a + 1</span></p>
+                            <p>Pindahkan konstanta: <span class="math">9 - 1 = 2a</span></p>
+                            <p><span class="math">8 = 2a</span></p>
+                            <p><span class="math">a = 8 / 2 = 4</span></p>
+                            <p>Jadi, nilai <span class="math">a</span> adalah <b>4</b>.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: KUIS GAMIFIKASI -->
+        <section id="kuis" class="section-content max-w-3xl mx-auto text-center">
+            <h2 class="text-3xl font-bold text-purple-700 mb-2"><i class="fas fa-gamepad mr-2"></i> Ninja Fungsi!</h2>
+            <p class="text-gray-600 mb-6">Tebak apakah himpunan pasangan berurutan berikut <b>FUNGSI</b> atau <b>BUKAN</b> secepat mungkin!</p>
+            
+            <div class="bg-white p-8 rounded-3xl shadow-xl border-4 border-purple-200 relative overflow-hidden">
+                <!-- Score Header -->
+                <div class="flex justify-between items-center mb-8 bg-purple-50 p-3 rounded-xl">
+                    <div class="text-lg font-bold text-purple-800">Skor: <span id="game-score" class="text-2xl text-purple-600">0</span></div>
+                    <div class="text-lg font-bold text-red-600">Nyawa: <span id="game-lives">❤️❤️❤️</span></div>
+                </div>
+
+                <!-- Flashcard -->
+                <div class="flashcard w-full h-40 mx-auto cursor-pointer mb-8" id="game-card">
+                    <div class="flashcard-inner w-full h-full relative">
+                        <div class="flashcard-front absolute w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-2xl flex items-center justify-center shadow-lg text-xl md:text-2xl font-bold px-4 math">
+                            <span id="game-question">Klik MULAI untuk bermain!</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div id="game-controls" class="hidden grid grid-cols-2 gap-4">
+                    <button onclick="checkGameAnswer(true)" class="bg-green-500 hover:bg-green-600 text-white font-bold py-4 rounded-xl shadow-md text-xl transform hover:scale-105 transition"><i class="fas fa-check-circle mr-2"></i> FUNGSI</button>
+                    <button onclick="checkGameAnswer(false)" class="bg-red-500 hover:bg-red-600 text-white font-bold py-4 rounded-xl shadow-md text-xl transform hover:scale-105 transition"><i class="fas fa-times-circle mr-2"></i> BUKAN</button>
+                </div>
+                <button id="game-start-btn" onclick="startGame()" class="bg-yellow-400 hover:bg-yellow-500 text-purple-900 font-bold py-3 px-8 rounded-full shadow-lg text-xl transform hover:scale-105 transition mt-4">
+                    <i class="fas fa-play mr-2"></i> MULAI MAIN
+                </button>
+
+                <!-- Feedback Text -->
+                <div id="game-feedback" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-5xl font-extrabold opacity-0 pointer-events-none transition-opacity duration-300"></div>
+            </div>
+        </section>
+
+        <!-- SECTION: LATIHAN SOAL (10) -->
+        <section id="latihan" class="section-content max-w-4xl mx-auto">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-3xl font-bold text-green-700 border-b-4 border-green-400 inline-block pb-2"><i class="fas fa-dumbbell mr-2"></i> 10 Latihan Soal Interaktif</h2>
+                <span class="bg-green-100 text-green-800 font-bold px-4 py-2 rounded-full shadow-sm text-sm">Skor Latihan: <span id="latihan-score">0</span>/10</span>
+            </div>
+            <p class="text-gray-600 mb-6 bg-white p-4 rounded-lg shadow-sm border-l-4 border-green-500">Pilih jawabanmu dan lihat langsung apakah benar atau salah! Cocok untuk pemanasan sebelum asesmen akhir.</p>
+            
+            <div id="latihan-container" class="space-y-6">
+                <!-- Dynamically filled by JS -->
+            </div>
+            <button onclick="resetLatihan()" class="mt-8 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-6 rounded-full transition"><i class="fas fa-redo mr-2"></i> Ulangi Latihan</button>
+        </section>
+
+        <!-- SECTION: ASESMEN (25) -->
+        <section id="asesmen" class="section-content max-w-4xl mx-auto pb-20">
+            <div class="bg-red-50 p-6 rounded-2xl shadow-sm border-t-4 border-red-500 mb-8">
+                <h2 class="text-3xl font-bold text-red-700 mb-2"><i class="fas fa-award mr-2"></i> Asesmen Akhir Relasi & Fungsi</h2>
+                <p class="text-gray-700 font-medium">Uji kemampuanmu dengan 25 soal pilihan ganda berikut. Kerjakan dengan teliti, dan klik tombol <b>Kumpulkan</b> di paling bawah untuk melihat nilai akhirmu.</p>
+            </div>
+
+            <form id="asesmen-form" onsubmit="submitAsesmen(event)">
+                <div id="asesmen-container" class="space-y-6">
+                    <!-- Dynamically filled by JS -->
+                </div>
+                
+                <div class="mt-10 text-center bg-white p-8 rounded-2xl shadow-lg border-2 border-indigo-100">
+                    <p class="text-gray-600 mb-4">Sudah yakin dengan semua jawabanmu?</p>
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-10 rounded-full shadow-xl text-xl transform hover:scale-105 transition w-full md:w-auto">
+                        <i class="fas fa-paper-plane mr-2"></i> Kumpulkan & Lihat Nilai
+                    </button>
+                </div>
+            </form>
+        </section>
+
+    </main>
+
+    <!-- Custom Modal (Replacements for alert) -->
+    <div id="custom-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center px-4 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-sm w-full text-center transform scale-95 transition-transform duration-300" id="modal-content">
+            <div id="modal-icon" class="text-6xl mb-4"></div>
+            <h3 id="modal-title" class="text-2xl font-bold mb-2 font-poppins text-gray-800"></h3>
+            <p id="modal-desc" class="text-gray-600 mb-6"></p>
+            <button onclick="closeModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-full w-full">Tutup</button>
+        </div>
+    </div>
+
+    <!-- AUDIO Context -->
+    <script>
+        // --- AUDIO / SOUND EFFECTS (Web Audio API) ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            if (type === 'correct') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.1); // A5
+                gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.3);
+            } else if (type === 'wrong') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(300, audioCtx.currentTime); 
+                osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.2); 
+                gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.3);
+            } else if (type === 'win') {
+                // simple arpeggio
+                const freqs = [440, 554.37, 659.25, 880];
+                let time = audioCtx.currentTime;
+                freqs.forEach((f, i) => {
+                    const o = audioCtx.createOscillator();
+                    const g = audioCtx.createGain();
+                    o.type = 'sine';
+                    o.frequency.value = f;
+                    o.connect(g);
+                    g.connect(audioCtx.destination);
+                    g.gain.setValueAtTime(0.3, time + (i*0.1));
+                    g.gain.exponentialRampToValueAtTime(0.01, time + (i*0.1) + 0.4);
+                    o.start(time + (i*0.1));
+                    o.stop(time + (i*0.1) + 0.4);
+                });
+            }
+        }
+
+        // --- MODAL UTILS ---
+        function showModal(title, desc, icon, iconColorClass) {
+            document.getElementById('custom-modal').classList.remove('hidden');
+            setTimeout(() => document.getElementById('modal-content').classList.replace('scale-95', 'scale-100'), 10);
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-desc').innerHTML = desc; // allow HTML
+            document.getElementById('modal-icon').innerHTML = `<i class="${icon} ${iconColorClass}"></i>`;
+        }
+        function closeModal() {
+            document.getElementById('modal-content').classList.replace('scale-100', 'scale-95');
+            setTimeout(() => {
+                document.getElementById('custom-modal').classList.add('hidden');
+            }, 200);
+        }
+
+        // --- NAVIGATION ---
+        function nav(sectionId) {
+            document.querySelectorAll('.section-content').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-indigo-500', 'border-l-4', 'border-yellow-300');
+                if(btn.dataset.target === sectionId) {
+                    btn.classList.add('bg-indigo-500', 'border-l-4', 'border-yellow-300');
+                }
+            });
+            document.getElementById(sectionId).classList.add('active');
+            window.scrollTo(0,0);
+        }
+
+        // --- ACCORDION ---
+        function toggleAccordion(id) {
+            const content = document.getElementById(id);
+            const btn = document.getElementById('btn-' + id);
+            
+            // Toggle classes for animation
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                btn.classList.remove('expanded');
+            } else {
+                content.classList.add('expanded');
+                btn.classList.add('expanded');
+            }
+        }
+
+        // --- TOGGLE JAWABAN ---
+        function toggleJawaban(id) {
+            const el = document.getElementById(id);
+            el.classList.toggle('hidden');
+        }
+
+        // --- GAMIFIKASI (KUIS NINJA) ---
+        let gameScore = 0;
+        let gameLives = 3;
+        let currentIsFunction = true;
+
+        const gameQuestions = [
+            { text: "{(1,A), (2,B), (3,C)}", isFunc: true },
+            { text: "{(1,A), (1,B), (2,C)}", isFunc: false },
+            { text: "{(A,1), (B,1), (C,1)}", isFunc: true },
+            { text: "{(1,2), (2,3), (3,4), (4,5)}", isFunc: true },
+            { text: "{(1,1), (2,1), (1,2)}", isFunc: false },
+            { text: "{(2,4), (3,9), (4,16)}", isFunc: true },
+            { text: "{(x,y), (x,z), (y,z)}", isFunc: false },
+            { text: "{(5,5), (6,5), (7,5)}", isFunc: true }
+        ];
+
+        function startGame() {
+            gameScore = 0;
+            gameLives = 3;
+            updateGameUI();
+            document.getElementById('game-start-btn').classList.add('hidden');
+            document.getElementById('game-controls').classList.remove('hidden');
+            document.getElementById('game-controls').classList.add('grid');
+            nextGameQuestion();
+        }
+
+        function updateGameUI() {
+            document.getElementById('game-score').innerText = gameScore;
+            document.getElementById('game-lives').innerText = '❤️'.repeat(gameLives) + '🖤'.repeat(3-gameLives);
+        }
+
+        function nextGameQuestion() {
+            const q = gameQuestions[Math.floor(Math.random() * gameQuestions.length)];
+            currentIsFunction = q.isFunc;
+            const qEl = document.getElementById('game-question');
+            const card = document.getElementById('game-card');
+            
+            // Flip animation
+            card.classList.add('flip');
+            setTimeout(() => {
+                qEl.innerText = q.text;
+                card.classList.remove('flip');
+            }, 300);
+        }
+
+        function checkGameAnswer(userGuess) {
+            const card = document.getElementById('game-card');
+            const feedback = document.getElementById('game-feedback');
+
+            if (userGuess === currentIsFunction) {
+                // Benar
+                playSound('correct');
+                gameScore += 10;
+                card.classList.add('bg-green-500');
+                feedback.innerText = "BENAR!";
+                feedback.className = "absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-5xl font-extrabold pointer-events-none transition-opacity duration-300 text-green-400 drop-shadow-lg opacity-100 z-10 animate-bounce-in";
+            } else {
+                // Salah
+                playSound('wrong');
+                gameLives--;
+                card.classList.add('animate-shake');
+                feedback.innerText = "SALAH!";
+                feedback.className = "absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-5xl font-extrabold pointer-events-none transition-opacity duration-300 text-red-500 drop-shadow-lg opacity-100 z-10 animate-bounce-in";
+            }
+
+            updateGameUI();
+
+            setTimeout(() => {
+                card.classList.remove('animate-shake', 'bg-green-500');
+                feedback.classList.remove('opacity-100', 'animate-bounce-in');
+                feedback.classList.add('opacity-0');
+                
+                if (gameLives > 0) {
+                    nextGameQuestion();
+                } else {
+                    endGame();
+                }
+            }, 800);
+        }
+
+        function endGame() {
+            playSound('wrong');
+            document.getElementById('game-start-btn').classList.remove('hidden');
+            document.getElementById('game-controls').classList.add('hidden');
+            document.getElementById('game-controls').classList.remove('grid');
+            document.getElementById('game-question').innerText = `Game Over! Skor: ${gameScore}`;
+            showModal("Game Over!", `Kamu mendapatkan skor <b>${gameScore}</b>. Ayo coba lagi dan pertajam insting fungsimu!`, "fas fa-skull-crossbones", "text-red-500");
+        }
+
+        // --- DATA LATIHAN & ASESMEN ---
+        // Format soal: { q: "pertanyaan", a: "A", b: "B", c: "C", d: "D", ans: "a|b|c|d", explain: "penjelasan" }
+
+        const dataLatihan = [
+            { q: "Relasi yang menghubungkan setiap anggota himpunan daerah asal dengan tepat satu anggota daerah kawan disebut...", a: "Himpunan", b: "Fungsi (Pemetaan)", c: "Domain", d: "Range", ans: "b", explain: "Definisi Fungsi adalah relasi khusus yang memasangkan setiap anggota domain dengan tepat satu anggota kodomain." },
+            { q: "Himpunan daerah asal dalam suatu fungsi disebut...", a: "Domain", b: "Kodomain", c: "Range", d: "Relasi", ans: "a", explain: "Domain adalah daerah asal." },
+            { q: "Diketahui P = {1, 2, 3} dan Q = {a, b}. Himpunan pasangan berurutan berikut yang merupakan FUNGSI dari P ke Q adalah...", a: "{(1,a), (2,a), (3,a)}", b: "{(1,a), (1,b), (2,a)}", c: "{(1,a), (2,b)}", d: "{(1,b), (2,b), (3,b), (1,a)}", ans: "a", explain: "Syarat fungsi: Semua anggota P (1,2,3) harus muncul tepat 1 kali di depan. Pilihan A benar." },
+            { q: "Daerah hasil (Range) dari pemetaan {(1, 2), (2, 4), (3, 6), (4, 8)} adalah...", a: "{1, 2, 3, 4}", b: "{2, 4, 6, 8}", c: "{1, 2, 3, 4, 6, 8}", d: "{ }", ans: "b", explain: "Range adalah himpunan anggota belakang dari pasangan berurutan, yaitu {2, 4, 6, 8}." },
+            { q: "Jika f(x) = 2x - 3, maka nilai dari f(5) adalah...", a: "7", b: "8", c: "10", d: "13", ans: "a", explain: "f(5) = 2(5) - 3 = 10 - 3 = 7." },
+            { q: "Diketahui rumus fungsi f(x) = -3x + 6. Bayangan dari -2 adalah...", a: "-12", b: "0", c: "12", d: "15", ans: "c", explain: "f(-2) = -3(-2) + 6 = 6 + 6 = 12." },
+            { q: "Pada fungsi h(x) = 4x - 2, jika h(a) = 14, maka nilai a adalah...", a: "2", b: "3", c: "4", d: "5", ans: "c", explain: "4a - 2 = 14 => 4a = 16 => a = 4." },
+            { q: "Banyak pemetaan yang mungkin dari himpunan A = {a, b} ke himpunan B = {1, 2, 3} adalah...", a: "5", b: "6", c: "8", d: "9", ans: "d", explain: "Rumus: n(B)^n(A) = 3^2 = 9." },
+            { q: "Sebuah taksi menetapkan tarif awal Rp 8.000 dan tarif per km Rp 4.000. Rumus fungsi tarif taksi (f) untuk jarak (x) km adalah...", a: "f(x) = 8000x + 4000", b: "f(x) = 4000x + 8000", c: "f(x) = 12000x", d: "f(x) = 4000x - 8000", ans: "b", explain: "Tarif tetap 8000 + biaya per km 4000x." },
+            { q: "Suatu fungsi f(x) = ax + b. Jika f(1) = 3 dan f(2) = 5, maka rumus fungsinya adalah...", a: "f(x) = 2x + 1", b: "f(x) = 2x - 1", c: "f(x) = x + 2", d: "f(x) = 3x", ans: "a", explain: "Dari f(1)=3 => a+b=3. Dari f(2)=5 => 2a+b=5. Kurangkan, didapat a=2. Maka b=1." }
+        ];
+
+        // 25 Soal Asesmen
+        const dataAsesmen = [
+            { q: "Hubungan yang memasangkan setiap anggota himpunan A ke himpunan B disebut...", a: "Fungsi", b: "Relasi", c: "Korespondensi", d: "Persamaan", ans: "b" },
+            { q: "Relasi yang memasangkan setiap anggota domain dengan TEPAT SATU anggota kodomain disebut...", a: "Fungsi", b: "Relasi", c: "Himpunan", d: "Persamaan", ans: "a" },
+            { q: "Pada fungsi f: A -> B, himpunan B disebut sebagai...", a: "Domain", b: "Kodomain", c: "Range", d: "Bayangan", ans: "b" },
+            { q: "Dari himpunan pasangan berurutan {(2,3), (3,4), (4,5), (5,6)}, Domainnya adalah...", a: "{3,4,5,6}", b: "{2,3,4,5}", c: "{2,3,4,5,6}", d: "{(2,3)}", ans: "b" },
+            { q: "Manakah himpunan pasangan berurutan berikut yang merupakan pemetaan?", a: "{(a,1), (b,1), (c,1)}", b: "{(a,1), (a,2), (b,1)}", c: "{(1,a), (1,b), (1,c)}", d: "{(a,1), (b,2), (a,3)}", ans: "a" },
+            { q: "Diketahui himpunan A = {p, q} dan B = {1, 2, 3}. Banyak fungsi yang mungkin dari A ke B adalah...", a: "6", b: "8", c: "9", d: "12", ans: "c" },
+            { q: "Banyak pemetaan yang mungkin dari B ke A (A={p,q}, B={1,2,3}) adalah...", a: "6", b: "8", c: "9", d: "12", ans: "b" },
+            { q: "Nilai dari fungsi f(x) = 5x - 2 untuk x = 3 adalah...", a: "13", b: "15", c: "17", d: "10", ans: "a" },
+            { q: "Diketahui f(x) = 10 - 2x. Bayangan dari 4 adalah...", a: "2", b: "4", c: "6", d: "8", ans: "a" },
+            { q: "Jika h(x) = 3x + 5, nilai h(-2) adalah...", a: "-1", b: "1", c: "-11", d: "11", ans: "a" },
+            { q: "Fungsi g(x) = 2x + 7. Jika g(a) = 15, maka nilai a adalah...", a: "3", b: "4", c: "5", d: "6", ans: "b" },
+            { q: "Pada fungsi f(x) = px + q, jika f(1)=4 dan f(2)=7, maka nilai p dan q berturut-turut adalah...", a: "3 dan 1", b: "1 dan 3", c: "2 dan 2", d: "3 dan -1", ans: "a" },
+            { q: "Rumus fungsi dari pasangan {(1,3), (2,5), (3,7)} adalah...", a: "f(x) = 2x + 1", b: "f(x) = x + 2", c: "f(x) = 3x", d: "f(x) = 2x - 1", ans: "a" },
+            { q: "Himpunan daerah hasil dari fungsi f(x) = x + 2 dengan domain {1, 2, 3} adalah...", a: "{1,2,3}", b: "{2,3,4}", c: "{3,4,5}", d: "{4,5,6}", ans: "c" },
+            { q: "Sumbu mendatar pada diagram kartesius menunjukkan...", a: "Kodomain", b: "Domain", c: "Range", d: "Relasi", ans: "b" },
+            { q: "Banyak korespondensi satu-satu dari himpunan A ke B jika n(A) = n(B) = 4 adalah...", a: "4", b: "16", c: "24", d: "256", ans: "c" },
+            { q: "Pembuat nol fungsi (nilai x yang membuat f(x)=0) dari f(x) = 2x - 8 adalah...", a: "2", b: "4", c: "-4", d: "8", ans: "b" },
+            { q: "Jika f(x) = -x + 5, berapakah f(-5)?", a: "0", b: "10", c: "-10", d: "5", ans: "b" },
+            { q: "Fungsi f dirumuskan f(x) = ax - b. Jika f(2) = 1 dan f(4) = 7, maka nilai a + b adalah...", a: "2", b: "5", c: "8", d: "11", ans: "c" }, // a=3, b=5 => a+b=8
+            { q: "Manakah yang BUKAN cara menyajikan relasi?", a: "Diagram Panah", b: "Diagram Kartesius", c: "Himpunan Pasangan Berurutan", d: "Diagram Lingkaran", ans: "d" },
+            { q: "Terdapat dua himpunan: P={Kucing, Anjing} dan Q={Karnivora, Herbivora}. Relasi yang tepat dari P ke Q adalah...", a: "Memakan", b: "Jenis Makanan", c: "Lebih besar dari", d: "Tinggal di", ans: "b" },
+            { q: "Jika f(x)=x^2 - 1, maka f(3) = ...", a: "5", b: "6", c: "8", d: "9", ans: "c" },
+            { q: "Grafik fungsi f(x) = 2x - 4 akan memotong sumbu Y di titik...", a: "(0, -4)", b: "(-4, 0)", c: "(2, 0)", d: "(0, 2)", ans: "a" },
+            { q: "Biaya parkir motor adalah Rp2000 untuk 1 jam pertama, dan Rp1000 untuk setiap jam berikutnya. Jika fungsi biaya parkir b(x) untuk x jam (x>1) adalah...", a: "b(x) = 1000x + 1000", b: "b(x) = 2000x", c: "b(x) = 1000x + 2000", d: "b(x) = 1000x", ans: "a" }, // 2000 + 1000(x-1) = 1000x + 1000
+            { q: "Jika f(x) = 4 - 2x, nilai terbesar dari f(x) untuk domain {0, 1, 2, 3} adalah...", a: "-2", b: "0", c: "2", d: "4", ans: "d" }
+        ];
+
+        let latihanSkor = 0;
+        let latihanAnswered = new Array(10).fill(false);
+
+        // --- RENDER LATIHAN ---
+        function renderLatihan() {
+            const container = document.getElementById('latihan-container');
+            container.innerHTML = '';
+            dataLatihan.forEach((item, index) => {
+                const qDiv = document.createElement('div');
+                qDiv.className = "bg-white p-5 rounded-2xl shadow-sm border border-gray-200";
+                
+                let optionsHtml = '';
+                ['a', 'b', 'c', 'd'].forEach(opt => {
+                    optionsHtml += `
+                        <button id="latihan-btn-${index}-${opt}" onclick="checkLatihan(${index}, '${opt}')" class="w-full text-left p-3 border border-gray-300 rounded-xl mb-2 hover:bg-green-50 transition font-medium">
+                            <span class="uppercase font-bold mr-2">${opt}.</span> ${item[opt]}
+                        </button>
+                    `;
+                });
+
+                qDiv.innerHTML = `
+                    <p class="font-bold text-gray-800 mb-4">${index + 1}. ${item.q}</p>
+                    <div id="latihan-options-${index}">${optionsHtml}</div>
+                    <div id="latihan-feedback-${index}" class="hidden mt-4 p-4 rounded-xl text-sm font-semibold animate-fadeIn"></div>
+                `;
+                container.appendChild(qDiv);
+            });
+        }
+
+        function checkLatihan(index, userAns) {
+            if (latihanAnswered[index]) return; // prevent multiple clicks
+            latihanAnswered[index] = true;
+            
+            const item = dataLatihan[index];
+            const feedbackEl = document.getElementById(`latihan-feedback-${index}`);
+            const btnClicked = document.getElementById(`latihan-btn-${index}-${userAns}`);
+            const btnCorrect = document.getElementById(`latihan-btn-${index}-${item.ans}`);
+
+            // Style options
+            document.querySelectorAll(`#latihan-options-${index} button`).forEach(btn => {
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+                btn.onclick = null;
+            });
+
+            if (userAns === item.ans) {
+                // Correct
+                playSound('correct');
+                latihanSkor++;
+                document.getElementById('latihan-score').innerText = latihanSkor;
+                btnClicked.classList.replace('border-gray-300', 'border-green-500');
+                btnClicked.classList.replace('hover:bg-green-50', 'bg-green-100');
+                btnClicked.classList.add('text-green-800');
+                
+                feedbackEl.innerHTML = `<i class="fas fa-check-circle text-green-600 mr-1"></i> <b>Benar!</b> ${item.explain}`;
+                feedbackEl.classList.add('bg-green-50', 'text-green-800', 'border-l-4', 'border-green-500');
+            } else {
+                // Wrong
+                playSound('wrong');
+                btnClicked.classList.replace('border-gray-300', 'border-red-500');
+                btnClicked.classList.replace('hover:bg-green-50', 'bg-red-100');
+                btnClicked.classList.add('text-red-800');
+                
+                btnCorrect.classList.replace('border-gray-300', 'border-green-500');
+                btnCorrect.classList.add('bg-green-50', 'text-green-700');
+
+                feedbackEl.innerHTML = `<i class="fas fa-times-circle text-red-600 mr-1"></i> <b>Salah.</b> ${item.explain}`;
+                feedbackEl.classList.add('bg-red-50', 'text-red-800', 'border-l-4', 'border-red-500');
+            }
+            feedbackEl.classList.remove('hidden');
+        }
+
+        function resetLatihan() {
+            latihanSkor = 0;
+            latihanAnswered.fill(false);
+            document.getElementById('latihan-score').innerText = '0';
+            renderLatihan();
+        }
+
+        // --- RENDER ASESMEN ---
+        function renderAsesmen() {
+            const container = document.getElementById('asesmen-container');
+            container.innerHTML = '';
+            dataAsesmen.forEach((item, index) => {
+                const qDiv = document.createElement('div');
+                qDiv.className = "bg-white p-5 rounded-2xl shadow-sm border border-gray-200 hover:border-indigo-300 transition";
+                
+                let optionsHtml = '';
+                ['a', 'b', 'c', 'd'].forEach(opt => {
+                    optionsHtml += `
+                        <label class="quiz-option flex items-center cursor-pointer mb-2 w-full">
+                            <input type="radio" name="q${index}" value="${opt}" class="hidden" required>
+                            <div class="w-full p-3 border-2 border-gray-100 rounded-xl transition hover:bg-gray-50 flex items-center">
+                                <span class="w-8 h-8 flex items-center justify-center bg-gray-100 rounded-full font-bold mr-3 uppercase">${opt}</span>
+                                <span class="text-gray-700 font-medium">${item[opt]}</span>
+                            </div>
+                        </label>
+                    `;
+                });
+
+                qDiv.innerHTML = `
+                    <p class="font-bold text-gray-800 mb-4 text-lg"><span class="text-indigo-600">${index + 1}.</span> ${item.q}</p>
+                    <div class="space-y-1">${optionsHtml}</div>
+                `;
+                container.appendChild(qDiv);
+            });
+        }
+
+        function submitAsesmen(e) {
+            e.preventDefault(); // Prevent form reload
+            const form = document.getElementById('asesmen-form');
+            const formData = new FormData(form);
+            
+            let correct = 0;
+            dataAsesmen.forEach((item, index) => {
+                if (formData.get(`q${index}`) === item.ans) {
+                    correct++;
+                }
+            });
+
+            const total = dataAsesmen.length;
+            const score = Math.round((correct / total) * 100);
+            
+            let title = "";
+            let desc = "";
+            let icon = "";
+            let iconColor = "";
+
+            if (score >= 85) {
+                playSound('win');
+                title = "Luar Biasa!";
+                desc = `Hebat sekali! Kamu menjawab benar <b>${correct}</b> dari 25 soal. Nilai Akhirmu: <b>${score}</b>. Ibu Sulistyana pasti bangga!`;
+                icon = "fas fa-trophy";
+                iconColor = "text-yellow-400";
+            } else if (score >= 70) {
+                playSound('correct');
+                title = "Bagus!";
+                desc = `Kamu menjawab benar <b>${correct}</b> dari 25 soal. Nilai Akhirmu: <b>${score}</b>. Terus tingkatkan belajarmu ya!`;
+                icon = "fas fa-thumbs-up";
+                iconColor = "text-blue-500";
+            } else {
+                playSound('wrong');
+                title = "Jangan Menyerah!";
+                desc = `Kamu menjawab benar <b>${correct}</b> dari 25 soal. Nilai Akhirmu: <b>${score}</b>. Ayo pelajari lagi materinya dan coba lagi!`;
+                icon = "fas fa-book-reader";
+                iconColor = "text-orange-500";
+            }
+
+            showModal(title, desc, icon, iconColor);
+            
+            // Scroll to top
+            window.scrollTo(0,0);
+        }
+
+        // --- INITIALIZATION ---
+        window.onload = function() {
+            renderLatihan();
+            renderAsesmen();
+            
+            // Render MathJax/KaTeX
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '\\(', right: '\\)', display: false}
+                ],
+                throwOnError : false
+            });
+        };
+
+    </script>
+</body>
+</html>
